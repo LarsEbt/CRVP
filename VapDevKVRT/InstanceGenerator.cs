@@ -22,17 +22,20 @@ namespace VapDevKVRT
                 int a = numberOfVehicles;
                 int n = numberOfDemandLocations;
 
-                string name = $"{a}-{n}-{k}";
+                string name = $"{k}-{a}-{n}";
                 int q = 200; // maximum capacity of each vehicle
                 double[] d = new double[n]; // demand at each location
-                double[,] warhouse = new double[random.Next(0, 100), random.Next(0, 100)]; // distance matrix
                 List<(double x, double y)> coordinatesCustomers = new List<(double x, double y)>(); // coordinates of customers
+
+                var warehouse = (
+                   x: random.NextDouble() * 1000,
+                   y: random.NextDouble() * 1000
+               );
 
                 for (int i = 0; i < n; i++)
                 {
                     d[i] = random.Next(10, 30); // Random demand between 10 and 30
-
-                    coordinatesCustomers.Add((random.Next(0, 10001), random.Next(0, 10001))); // Random coordinates between 0 and 10000
+                    coordinatesCustomers.Add((random.Next(0, 1001), random.Next(0, 1001))); // Random coordinates between 0 and 10000
                 }
 
                 double totalCapacity = n * q; // total capacity of all vehicles
@@ -44,9 +47,10 @@ namespace VapDevKVRT
                     double increment = Math.Ceiling(totalDemand - totalCapacity) / q; // Calculate increment to adjust demand
                     a += (int)increment;
                 }
+
+                CVRPInstance instance = new CVRPInstance(name, a, n, d, warehouse, coordinatesCustomers);
+                instance.WriteToFile();
             }
         }
-
-
     }
 }
