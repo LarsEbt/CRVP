@@ -23,6 +23,8 @@ namespace VapDevKVRT
         public static void RunBeforeGUI()
         {
             Console.WriteLine("Running pre-GUI setup...");
+            InstanceGenerator generator = new InstanceGenerator();
+            generator.GenerateInstances(10, 5, 20); // Example parameters: 10 instances, 5 vehicles, 20 demand locations
 
 
         }
