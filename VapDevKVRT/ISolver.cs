@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace VapDevKVRT
 {
-    internal class ISolver
+    public interface ISolver
     {
+        CVRPInstance Instance { get; set; }
+
+        public CVRPSolution Solve(); 
+       
     }
 }
