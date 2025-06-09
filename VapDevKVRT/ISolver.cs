@@ -23,7 +23,7 @@ namespace VapDevKVRT
             double totalCost = 0;
             int vehiclesUsed = 0;
 
-            while (visited.Any(vehicleCapacity => !vehicleCapacity))
+            while (visited.Any(v => !v))
             {
                 var route = new List<int>();
                 double remainingCapacity = vehicleCapacity;
@@ -32,14 +32,14 @@ namespace VapDevKVRT
 
                 while (true)
                 {
-                    int nerest = -1;
+                    int nearest = -1;
                     double minDistance = double.MaxValue;
 
                     for (int i = 0; i < n; i++)
                     {
-                        if (!visited[i] && remainingDemand[i] <= remainingCap)
+                        if (!visited[i] && remainingDemand[i] <= remainingCapacity)
                         {
-                            double dist = minDistance(currentLocation, customers[i]);
+                            double dist = Distance(currentLocation, customers[i]);
                             if (dist < minDistance)
                             {
                                 minDistance = dist;
@@ -49,16 +49,24 @@ namespace VapDevKVRT
                     }
 
                     if (nearest == -1)
-                    {
-                        break; // No more reachable customers
-                    }
+                        break; // Keine passenden Kunden mehr für diese Tour
 
-                    routeCost += minDistance(currentLocation, warehouse);
-                    totalCost += routeCost;
-                    allRoutes.Add(route);
-                    vehiclesUsed++;
+                    // Besuch einplanen
+                    route.Add(nearest);
+                    visited[nearest] = true;
+                    remainingCapacity -= remainingDemand[nearest];
+                    routeCost += Distance(currentLocation, customers[nearest]);
+                    currentLocation = customers[nearest];
                 }
+
+                // Rückfahrt zum Lager
+                routeCost += Distance(currentLocation, warehouse);
+
+                totalCost += routeCost;
+                allRoutes.Add(route);
+                vehiclesUsed++;
             }
+
             stopwatch.Stop();
 
             var solution = new CVRPSolution(
@@ -66,7 +74,8 @@ namespace VapDevKVRT
                 "Nearest Neighbor",
                 totalCost,
                 stopwatch.Elapsed.TotalSeconds,
-                vehiclesUsed
+                vehiclesUsed,
+                allRoutes // optional, falls CVRPSolution das unterstützt
             );
 
             solution.WriteToFile();
@@ -76,17 +85,15 @@ namespace VapDevKVRT
         private double Distance((double x, double y) a, (double x, double y) b)
         {
             double dx = a.x - b.x;
-            double dy = a.y - b.y; 
+            double dy = a.y - b.y;
             return Math.Sqrt(dx * dx + dy * dy);
         }
     }
+
     public interface ISolver
     {
         CVRPInstance Instance { get; set; }
 
         public CVRPSolution Solve();
-
     }
-    
-    
 }
