@@ -80,11 +80,5 @@ namespace VapDevKVRT
             return Math.Sqrt(dx * dx + dy * dy);
         }
     }
-    public interface ISolver
-    {
-        CVRPInstance Instance { get; set; }
-
-        public CVRPSolution Solve();
-
-    }
+    
 }
