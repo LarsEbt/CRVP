@@ -80,5 +80,5 @@ namespace VapDevKVRT
             return Math.Sqrt(dx * dx + dy * dy);
         }
     }
-    
 }
+
