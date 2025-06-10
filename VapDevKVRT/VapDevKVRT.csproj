@@ -10,7 +10,12 @@
 
   <ItemGroup>
     <Folder Include="instances\" />
-    <Folder Include="solutions\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Gurobi120.NET">
+      <HintPath>..\..\..\..\..\gurobi1201\win64\bin\Gurobi120.NET.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
