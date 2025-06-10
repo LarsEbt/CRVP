@@ -18,7 +18,7 @@ namespace VapDevKVRT
 
         public double Solutiontime { get; set; }
 
-        //reihenfolgen Arrays 
+        public List<List<int>> Routes { get; set; } = new List<List<int>>(); //z.B. [[0, 1, 2], [0, 3, 4]] für zwei Routen, wobei 0 das Depot ist
 
         public int NumberOfVehicles { get; set; }
 
@@ -35,7 +35,13 @@ namespace VapDevKVRT
         {
             StreamWriter writer = new StreamWriter($@"..\..\..\solutions\{InstanceName}_{Solver}_Sol.txt");
 
-            writer.WriteLine($"Name\n{InstanceName}\n\nSolver\n{Solver}\n\nDelivery costs\n{DeliveryCosts}\n\nSolution time\n{Solutiontime}\n\nNumber of vehicles\n{NumberOfVehicles}\n\nRoute");
+            writer.WriteLine($"Name\n{InstanceName}\n\nSolver\n{Solver}\n\nDelivery costs\n{DeliveryCosts}\n\nSolution time\n{Solutiontime}\n\nNumber of vehicles\n{NumberOfVehicles}\n");
+
+            writer.WriteLine("\nRoutes:");
+            foreach (var route in Routes)
+            {
+                writer.WriteLine(string.Join(" -> ", route)); 
+            }
 
             writer.Close();
         }
