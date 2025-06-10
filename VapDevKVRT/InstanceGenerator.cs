@@ -49,7 +49,6 @@ namespace VapDevKVRT
                 }
 
                 CVRPInstance instance = new CVRPInstance(name, a, n, d, warehouse, coordinatesCustomers);
-                instance.ComputeDistanceMatrix(); // Compute the distance matrix for the instance
                 instance.WriteToFile();
             }
         }
