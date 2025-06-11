@@ -1,0 +1,19 @@
+Name
+0-5-20
+
+Solver
+Gurobi
+
+Delivery costs
+5037.45
+
+Solution time
+5.0522738
+
+Number of vehicles
+2
+
+
+Routes:
+0 -> 2 -> 16 -> 7 -> 17 -> 19 -> 11 -> 10 -> 9 -> 20 -> 3 -> 0
+0 -> 6 -> 14 -> 1 -> 12 -> 4 -> 13 -> 5 -> 18 -> 8 -> 15 -> 0
