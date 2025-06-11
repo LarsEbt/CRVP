@@ -113,9 +113,15 @@ namespace VapDevKVRT
                     while (true)
                     {
                         bool found = false;
+<<<<<<< HEAD
                         for (int j = 1; j < N; j++) //bei 0 starten
                         {
                             if (xVal[current, j] && !visited.Contains(j)) //könnte weg contains
+=======
+                        for (int j = 1; j < N; j++)
+                        {
+                            if (xVal[current, j] && !visited.Contains(j))
+>>>>>>> origin/master
                             {
                                 route.Add(j);
                                 visited.Add(j);

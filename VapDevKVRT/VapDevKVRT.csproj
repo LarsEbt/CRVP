@@ -14,7 +14,11 @@
 
   <ItemGroup>
     <Reference Include="Gurobi120.NET">
+<<<<<<< HEAD
       <HintPath>..\..\..\..\..\..\..\gurobi1202\win64\bin\Gurobi120.NET.dll</HintPath>
+=======
+      <HintPath>..\..\..\..\..\gurobi1201\win64\bin\Gurobi120.NET.dll</HintPath>
+>>>>>>> origin/master
     </Reference>
   </ItemGroup>
 

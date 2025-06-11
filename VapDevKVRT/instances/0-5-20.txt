@@ -7,7 +7,7 @@ Number of Demand Locations:
 Demands:
 29, 27, 20, 16, 15, 25, 29, 12, 15, 23, 10, 25, 13, 27, 15, 20, 18, 20, 18, 19
 Warehouse Coordinates:
-773.5899490181309, 63.20997330509591
+773,5899490181309, 63,20997330509591
 
 Customer Coordinates:
 286, 358

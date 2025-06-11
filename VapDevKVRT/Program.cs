@@ -30,7 +30,11 @@ namespace VapDevKVRT
             CVRPInstance instance = CVRPInstance.ReadFromFile(instanceName);
 
             //4. Sovler wählen
+<<<<<<< HEAD
             ISolver sovler = new GurobiSolver(instance, 5);
+=======
+            ISolver sovler = new GurobiSolver(instance, 60);
+>>>>>>> origin/master
 
             //5. Instanz lösen
             CVRPSolution solution = sovler.Solve();
