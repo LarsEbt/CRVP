@@ -9,8 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="GurobiSolver.cs" />
-    <Compile Remove="ISolver.cs" />
     <Compile Remove="NearestNeighborSolver.cs" />
   </ItemGroup>
 
@@ -19,8 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="GurobiSolver.cs" />
-    <None Include="ISolver.cs" />
     <None Include="NearestNeighborSolver.cs" />
   </ItemGroup>
 
