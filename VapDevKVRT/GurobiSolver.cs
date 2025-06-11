@@ -113,40 +113,41 @@ namespace VapDevKVRT
                     while (true)
                     {
                         bool found = false;
-<<<<<<< HEAD
+
                         for (int j = 1; j < N; j++) //bei 0 starten
                         {
                             if (xVal[current, j] && !visited.Contains(j)) //könnte weg contains
-=======
-                        for (int j = 1; j < N; j++)
-                        {
-                            if (xVal[current, j] && !visited.Contains(j))
->>>>>>> origin/master
-                            {
-                                route.Add(j);
-                                visited.Add(j);
-                                current = j;
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) break;
-                    }
-                    route.Add(0);
-                    if (route.Count > 2) routes.Add(route);
-                }
-            }
 
-            return new CVRPSolution(
-                instanceName: Instance.Name,
-                solver: "Gurobi",
-                deliveryCosts: model.ObjVal,
-                solutiontime: sw.Elapsed.TotalSeconds,
-                numberOfVehicles: routes.Count
-            )
-            {
-                Routes = routes
-            };
+                                for (int i = 1; i < N; j++)
+                                {
+                                    if (xVal[current, j] && !visited.Contains(j))
+
+                                    {
+                                        route.Add(j);
+                                        visited.Add(j);
+                                        current = j;
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                            if (!found) break;
+                        }
+                        route.Add(0);
+                        if (route.Count > 2) routes.Add(route);
+                    }
+                }
+
+                return new CVRPSolution(
+                    instanceName: Instance.Name,
+                    solver: "Gurobi",
+                    deliveryCosts: model.ObjVal,
+                    solutiontime: sw.Elapsed.TotalSeconds,
+                    numberOfVehicles: routes.Count
+                )
+                {
+                    Routes = routes
+                };
+            }
         }
     }
 }

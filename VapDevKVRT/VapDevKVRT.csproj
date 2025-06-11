@@ -9,17 +9,26 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="GurobiSolver.cs" />
+    <Compile Remove="ISolver.cs" />
+    <Compile Remove="NearestNeighborSolver.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="instances\" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="GurobiSolver.cs" />
+    <None Include="ISolver.cs" />
+    <None Include="NearestNeighborSolver.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="Gurobi120.NET">
-<<<<<<< HEAD
       <HintPath>..\..\..\..\..\..\..\gurobi1202\win64\bin\Gurobi120.NET.dll</HintPath>
-=======
-      <HintPath>..\..\..\..\..\gurobi1201\win64\bin\Gurobi120.NET.dll</HintPath>
->>>>>>> origin/master
     </Reference>
   </ItemGroup>
+
 
 </Project>
