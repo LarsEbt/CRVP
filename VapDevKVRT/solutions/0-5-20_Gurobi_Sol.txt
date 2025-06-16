@@ -8,7 +8,7 @@ Delivery costs
 435
 
 Solution time
-20,8648012
+9,7042367
 
 Number of vehicles
 2

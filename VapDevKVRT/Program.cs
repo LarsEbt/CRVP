@@ -24,16 +24,16 @@ namespace VapDevKVRT
             generator.GenerateInstances(10, 5, 20); // Example parameters: 10 instances, 5 vehicles, 20 demand locations
 
             //2. Instanzname definieren
-            string instanceName = "0-5-20"; // Example instance name
+            string instanceName = "1-5-20"; // Example instance name
 
             //3. Instancz laden
             CVRPInstance instance = CVRPInstance.ReadFromFile(instanceName);
 
-            //4. Sovler wählen
-            ISolver sovler = new GurobiSolver(instance, 60);
+            //4. Solver wählen
+            NNH solver = new NNH(instance, 60);
 
             //5. Instanz lösen
-            CVRPSolution solution = sovler.Solve();
+            CVRPSolution solution = solver.Solve();
 
 
             // 6. Lösung speichern
