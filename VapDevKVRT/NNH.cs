@@ -29,7 +29,8 @@ namespace VapDevKVRT
             visited[0] = true;
             List<List<int>> routes = new();
 
-            for (int a = 0; a < A; a++) // Für jeden Lkw
+            int vehicleUsed = 0;
+            while (visited.Any(v => v == false)) // Für jeden Lkw
             {
                 List<int> route = new() { 0 };
                 double remainingCapacity = Q; 
