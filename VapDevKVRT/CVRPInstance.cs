@@ -13,7 +13,7 @@ namespace VapDevKVRT
 
         public int NumberOfDemandLocations { get; set; }
 
-        public double[,] DistanceMatrix { get; set; }
+        public double[,] DistanceMatrix { get; set; } = new double[0, 0]; // Initialize to avoid null
 
         public double[] d { get; set; }
 
@@ -65,7 +65,7 @@ namespace VapDevKVRT
 
                 writer.WriteLine("Warehouse Coordinates:");
                 writer.WriteLine($"{Warehouse.x}, {Warehouse.y}");
-                writer.WriteLine(); // ✅ Fehler vorher: fehlendes Semikolon
+                writer.WriteLine();
 
                 writer.WriteLine("Customer Coordinates:");
                 foreach (var coord in CoordinatesCustomers)
@@ -106,7 +106,7 @@ namespace VapDevKVRT
             (double x, double y) warehouse = (warehouseCoords[0], warehouseCoords[1]);
 
             List<(double x, double y)> coordinatesCustomers = new List<(double x, double y)>();
-            int customerStartLine = 12; 
+            int customerStartLine = 12;
             for (int i = 0; i < numberOfDemandLocations; i++)
             {
                 var coords = lines[customerStartLine + i].Split(',').Select(double.Parse).ToArray();
