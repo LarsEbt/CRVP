@@ -58,6 +58,7 @@ namespace VapDevKVRT
                     currentNode = next;
                 }
                 route.Add(0); // Zurück zum Depot
+                route = InsideOpt(route, c); // 2-opt-Optimierung
                 routes.Add(route);
             }
             
@@ -81,5 +82,40 @@ namespace VapDevKVRT
             };
 
         }
+        private List<int> InsideOpt(List<int> route, double[,] c)
+        {
+            if (route.Count <= 4) return route;
+
+            bool improved = true;
+            int maxIterations = 1000;
+            int iteration = 0;
+
+            while (improved && iteration < maxIterations)
+            {
+                improved = false;
+                iteration++;
+
+                for (int i = 1; i < route.Count - 2; i++)
+                {
+                    for (int k = i + 1; k < route.Count - 1; k++)
+                    {
+                        double delta =
+                            c[route[i - 1], route[k]] +
+                            c[route[i], route[k + 1]] -
+                            c[route[i - 1], route[i]] -
+                            c[route[k], route[k + 1]];
+
+                        if (delta < -1e-3) // größerer Schwellenwert
+                        {
+                            route.Reverse(i, k - i + 1);
+                            improved = true;
+                        }
+                    }
+                }
+            }
+
+            return route;
+        }
+
     }
 }
