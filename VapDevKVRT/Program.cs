@@ -24,7 +24,7 @@ namespace VapDevKVRT
             generator.GenerateInstances(10, 5, 20); // Example parameters: 10 instances, 5 vehicles, 20 demand locations
 
             //2. Instanzname definieren
-            string instanceName = "1-5-20"; // Example instance name
+            string instanceName = "9-5-20"; // Example instance name
 
             //3. Instancz laden
             CVRPInstance instance = CVRPInstance.ReadFromFile(instanceName);

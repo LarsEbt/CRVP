@@ -1,0 +1,20 @@
+Name
+9-5-20
+
+Solver
+NNH
+
+Delivery costs
+2623
+
+Solution time
+0,0004922
+
+Number of vehicles
+3
+
+
+Routes:
+0 -> 1 -> 2 -> 4 -> 8 -> 13 -> 3 -> 6 -> 12 -> 7 -> 0
+0 -> 17 -> 9 -> 18 -> 15 -> 5 -> 10 -> 20 -> 11 -> 19 -> 0
+0 -> 14 -> 16 -> 0

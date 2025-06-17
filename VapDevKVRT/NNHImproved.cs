@@ -69,6 +69,8 @@ namespace VapDevKVRT
                 route.Add(0);
                 route = InsideRoute(route, c);
                 routes.Add(route);
+
+                OutsideRoute(routes, c, d, Q);
             }
 
             double totalDistance = 0.0;
@@ -114,5 +116,108 @@ namespace VapDevKVRT
             }
             return route;
         }
+
+        private void OutsideRoute(List<List<int>> routes, double[,] c, double[] d, double Q)
+        {
+            bool improved = true;
+            while (improved)
+            {
+                improved = false;
+
+                // === SWAP-KUNDENTAUSCH ZWISCHEN ROUTEN ===
+                for (int r1 = 0; r1 < routes.Count; r1++)
+                {
+                    for (int r2 = r1 + 1; r2 < routes.Count; r2++)
+                    {
+                        var route1 = routes[r1];
+                        var route2 = routes[r2];
+
+                        for (int i = 1; i < route1.Count - 1; i++)
+                        {
+                            for (int j = 1; j < route2.Count - 1; j++)
+                            {
+                                int cust1 = route1[i];
+                                int cust2 = route2[j];
+
+                                double demand1 = d[cust1 - 1];
+                                double demand2 = d[cust2 - 1];
+
+                                double cap1 = route1.Skip(1).Take(route1.Count - 2).Sum(k => d[k - 1]);
+                                double cap2 = route2.Skip(1).Take(route2.Count - 2).Sum(k => d[k - 1]);
+
+                                if (cap1 - demand1 + demand2 <= Q && cap2 - demand2 + demand1 <= Q)
+                                {
+                                    double before =
+                                        c[route1[i - 1], route1[i]] + c[route1[i], route1[i + 1]] +
+                                        c[route2[j - 1], route2[j]] + c[route2[j], route2[j + 1]];
+
+                                    double after =
+                                        c[route1[i - 1], cust2] + c[cust2, route1[i + 1]] +
+                                        c[route2[j - 1], cust1] + c[cust1, route2[j + 1]];
+
+                                    if (after < before)
+                                    {
+                                        route1[i] = cust2;
+                                        route2[j] = cust1;
+                                        improved = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // === RELOCATE — KUNDE VON EINER ROUTE IN EINE ANDERE ===
+                for (int r1 = 0; r1 < routes.Count; r1++)
+                {
+                    for (int r2 = 0; r2 < routes.Count; r2++)
+                    {
+                        if (r1 == r2) continue;
+
+                        var route1 = routes[r1];
+                        var route2 = routes[r2];
+
+                        for (int i = 1; i < route1.Count - 1; i++)
+                        {
+                            int cust = route1[i];
+                            double demand = d[cust - 1];
+
+                            double cap2 = route2.Skip(1).Take(route2.Count - 2).Sum(k => d[k - 1]);
+                            if (cap2 + demand > Q) continue;
+
+                            // Versuche, cust an allen Positionen in route2 einzufügen
+                            for (int j = 1; j < route2.Count; j++)
+                            {
+                                double oldCost =
+                                    c[route1[i - 1], route1[i]] + c[route1[i], route1[i + 1]] +
+                                    c[route2[j - 1], route2[j]];
+
+                                double newCost =
+                                    c[route1[i - 1], route1[i + 1]] + // cust wird entfernt
+                                    c[route2[j - 1], cust] + c[cust, route2[j]]; // cust wird eingefügt
+
+                                if (newCost < oldCost)
+                                {
+                                    route1.RemoveAt(i);
+                                    route2.Insert(j, cust);
+                                    improved = true;
+                                    break;
+                                }
+                            }
+
+                            if (improved)
+                                break;
+                        }
+
+                        if (improved)
+                            break;
+                    }
+
+                    if (improved)
+                        break;
+                }
+            }
+        }
+
     }
 }
