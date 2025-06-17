@@ -30,7 +30,7 @@ namespace VapDevKVRT
             CVRPInstance instance = CVRPInstance.ReadFromFile(instanceName);
 
             //4. Solver wählen
-            NNH solver = new NNH(instance, 60);
+            NNHImproved solver = new NNHImproved(instance, 60);
 
             //5. Instanz lösen
             CVRPSolution solution = solver.Solve();
