@@ -1,10 +1,15 @@
+using CVRP;
+using Google.OrTools.ConstraintSolver;
+using System.Security.Cryptography.X509Certificates;
+using VAP;
+
 namespace VapDevKVRT
 {
+
     internal static class Program
     {
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
+
+
         [STAThread]
         static void Main()
         {
@@ -18,33 +23,59 @@ namespace VapDevKVRT
 
         public static void RunBeforeGUI()
         {
-            //1. Instanz generieren
-            Console.WriteLine("Running pre-GUI setup...");
-            InstanceGenerator generator = new InstanceGenerator();
-            generator.GenerateInstances(10, 5, 20); // Example parameters: 10 instances, 5 vehicles, 20 demand locations
+            // Parameter zentral definieren
+            int numberOfInstances = 5;
+            int numberOfVehicles = 5;
+            int numberOfCustomers = 12;
+            int vehicleCapacity = 2000;
+            int instanceIndex = 0;
+            int timeLimit = 1; 
 
-            //2. Instanzname definieren
-            string instanceName = "7-5-20"; // Example instance name
+            // 1) Instanz-Generator ausfÃ¼hren:
+            var generator = new CVRPInstanceGenerator();
+            // Erzeuge 5 Instanzen mit je 3 Fahrzeugen, 10 Kunden und KapazitÃ¤t 100
+            generator.GenerateInstances(numberOfInstances,
+                                        numberOfVehicles,
+                                        numberOfCustomers,
+                                        vehicleCapacity);
 
-            //3. Instancz laden
-            CVRPInstance instance = CVRPInstance.ReadFromFile(instanceName);
+            // 2) Eine Instanz einlesen "{Fahrzeuge}-{Kunden}-{Index}", z.B. "CVRP-3-10-0")
+            var instanceFileName = CVRPInstance.ReadFromFile($"CVRP-{numberOfVehicles}-{numberOfCustomers}-{instanceIndex}");
 
-            //4. Sovler wählen
-            ISolver sovler = new GurobiSolver(instance, 60);
 
-            //5. Instanz lösen
-            CVRPSolution solution = sovler.Solve();
 
-            // 6. Lösung speichern
-            solution.WriteToFile();
+            ////// --- Nearest Neighbour lÃ¶sen ---
+            
 
-            // 7. Ausgabe in Konsole
-            Console.WriteLine("----- Lösung abgeschlossen -----");
-            Console.WriteLine($"Solver: {solution.Solver}");
-            Console.WriteLine($"Kosten: {solution.DeliveryCosts:F2}");
-            Console.WriteLine($"Fahrzeuge: {solution.NumberOfVehicles}");
-            Console.WriteLine($"Lösungszeit: {solution.Solutiontime:F3} Sekunden");
-            Console.WriteLine("--------------------------------");
+            // --- Saving Heuristic lÃ¶sen ---
+            ISolver savingSolver = new SavingHeuristicSolver(instanceFileName);
+            var savingSolution = savingSolver.Solve();
+            savingSolution.WriteToFile();
+            Console.WriteLine("SavingHeuristic:   " + savingSolution);
+
+            //--- Clarke-Wright lÃ¶sen ---
+            ISolver randomNextSolver = new RandomNextSolver(instanceFileName);
+            var randomNextSolution = randomNextSolver.Solve();
+            randomNextSolution.WriteToFile();
+            Console.WriteLine("RandomNext:   " + randomNextSolution);
+
+            // --- Gurobi lÃ¶sen 
+            ISolver gurobiSolver = new GurobiSolver(instanceFileName, timeLimit);
+            var gurobiSolution = gurobiSolver.Solve();
+            gurobiSolution.WriteToFile();
+            Console.WriteLine("Gurobi:   " + gurobiSolution);
+
+            //--- Google OR Tools lÃ¶sen ---
+            ISolver googleSolver = new GoogleORSolver(instanceFileName, 1);
+            var googleSolution = googleSolver.Solve();
+            googleSolution.WriteToFile();
+            Console.WriteLine("Google OR Tools:   " + googleSolution);
+
+            //---Dynamic Programming lÃ¶sen ---
+            ISolver dpsolver = new DPSolver(instanceFileName);
+            CVRPSolution sol = dpsolver.Solve();
+            sol.WriteToFile();
+            Console.WriteLine("Dynamic Programming:   " + sol);
         }
     }
 }
