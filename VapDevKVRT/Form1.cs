@@ -6,6 +6,7 @@ using System.Linq;
 using CVRP;
 using System.Drawing.Drawing2D;
 using System.Collections.Generic;
+using VapDevKVRT;
 
 namespace VAP
 {
@@ -231,9 +232,61 @@ namespace VAP
             // Optional: set default state
         }
 
-        private void label2_Click(object sender, EventArgs e)
-        {
 
+        private void bMultiLoad_Click(object sender, EventArgs e)
+        {
+            openFileDialog1.Multiselect = true;
+            openFileDialog1.InitialDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "solutions");
+            openFileDialog1.Filter = "CVRP Solution Files (*.txt)|*.txt|All Files (*.*)|*.*";
+
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                var files = openFileDialog1.FileNames;
+                List<CVRPSolutionInfo> solutionInfos = new List<CVRPSolutionInfo>();
+
+                foreach (var path in files)
+                {
+                    try
+                    {
+                        var file = Path.GetFileNameWithoutExtension(path);
+                        var parts = file.Split('_');
+                        if (parts.Length < 3)
+                            continue;
+
+                        string instanceName = parts[0];
+                        string solverName = parts[1];
+
+                        var instance = CVRPInstance.ReadFromFile(instanceName);
+                        var solution = CVRPSolution.ReadFromFile(instanceName, solverName);
+
+                        int vehiclesUsed = solution.YSol.Count(y => y > 0.5);
+                        double demand = 0;
+                        for (int i = 0; i < instance.NodeCount; i++)
+                        {
+                            if (i > 0)
+                                demand += instance.Demands[i];
+                        }
+
+                        double avgUtil = (vehiclesUsed > 0) ? (demand / (vehiclesUsed * instance.VehicleCapacity)) * 100 : 0;
+
+                        solutionInfos.Add(new CVRPSolutionInfo
+                        {
+                            Dateiname = Path.GetFileName(path),
+                            Solver = solution.Solver,
+                            Kosten = solution.TravelCosts,
+                            Fahrzeuge = vehiclesUsed,
+                            Auslastung = avgUtil,
+                            Nachfrage = demand
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Fehler bei Datei {path}: {ex.Message}");
+                    }
+                }
+
+                dataGridView1.DataSource = solutionInfos;
+            }
         }
     }
 }

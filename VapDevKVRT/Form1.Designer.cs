@@ -28,6 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             openFileDialog1 = new OpenFileDialog();
             bOpenFile = new Button();
             tbLösung = new TextBox();
@@ -47,6 +50,13 @@
             textBox5 = new TextBox();
             label8 = new Label();
             label9 = new Label();
+            button1 = new Button();
+            dataGridView1 = new DataGridView();
+            chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            textBox6 = new TextBox();
+            label10 = new Label();
+            ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)chart1).BeginInit();
             SuspendLayout();
             // 
             // openFileDialog1
@@ -106,7 +116,6 @@
             label2.Size = new Size(267, 48);
             label2.TabIndex = 2;
             label2.Text = "Routen Details";
-            label2.Click += label2_Click;
             // 
             // richTextBox1
             // 
@@ -130,7 +139,7 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(1247, 287);
+            label4.Location = new Point(1247, 277);
             label4.Name = "label4";
             label4.Size = new Size(96, 37);
             label4.TabIndex = 7;
@@ -139,7 +148,7 @@
             // textBox1
             // 
             textBox1.BackColor = SystemColors.ButtonFace;
-            textBox1.Location = new Point(1486, 287);
+            textBox1.Location = new Point(1486, 277);
             textBox1.Margin = new Padding(6);
             textBox1.Name = "textBox1";
             textBox1.Size = new Size(459, 43);
@@ -148,7 +157,7 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(1247, 379);
+            label5.Location = new Point(1247, 355);
             label5.Name = "label5";
             label5.Size = new Size(109, 37);
             label5.TabIndex = 7;
@@ -157,7 +166,7 @@
             // textBox2
             // 
             textBox2.BackColor = SystemColors.ButtonFace;
-            textBox2.Location = new Point(1486, 373);
+            textBox2.Location = new Point(1486, 349);
             textBox2.Margin = new Padding(6);
             textBox2.Name = "textBox2";
             textBox2.Size = new Size(459, 43);
@@ -166,7 +175,7 @@
             // textBox3
             // 
             textBox3.BackColor = SystemColors.ButtonFace;
-            textBox3.Location = new Point(1486, 467);
+            textBox3.Location = new Point(1486, 504);
             textBox3.Margin = new Padding(6);
             textBox3.Name = "textBox3";
             textBox3.Size = new Size(459, 43);
@@ -175,7 +184,7 @@
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(1247, 473);
+            label6.Location = new Point(1247, 510);
             label6.Name = "label6";
             label6.Size = new Size(145, 37);
             label6.TabIndex = 7;
@@ -184,7 +193,7 @@
             // textBox4
             // 
             textBox4.BackColor = SystemColors.ButtonFace;
-            textBox4.Location = new Point(1486, 565);
+            textBox4.Location = new Point(1486, 587);
             textBox4.Margin = new Padding(6);
             textBox4.Name = "textBox4";
             textBox4.Size = new Size(459, 43);
@@ -193,7 +202,7 @@
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new Point(1247, 571);
+            label7.Location = new Point(1247, 593);
             label7.Name = "label7";
             label7.Size = new Size(153, 37);
             label7.TabIndex = 7;
@@ -202,7 +211,7 @@
             // textBox5
             // 
             textBox5.BackColor = SystemColors.ButtonFace;
-            textBox5.Location = new Point(1486, 667);
+            textBox5.Location = new Point(1486, 672);
             textBox5.Margin = new Padding(6);
             textBox5.Name = "textBox5";
             textBox5.Size = new Size(459, 43);
@@ -211,7 +220,7 @@
             // label8
             // 
             label8.AutoSize = true;
-            label8.Location = new Point(1247, 673);
+            label8.Location = new Point(1247, 678);
             label8.Name = "label8";
             label8.Size = new Size(230, 37);
             label8.TabIndex = 7;
@@ -221,26 +230,86 @@
             // 
             label9.AutoSize = true;
             label9.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label9.Location = new Point(1223, 748);
+            label9.Location = new Point(1223, 758);
             label9.Margin = new Padding(6, 0, 6, 0);
             label9.Name = "label9";
             label9.Size = new Size(214, 48);
             label9.TabIndex = 2;
             label9.Text = "Teil-Routen";
-            label9.Click += label2_Click;
+            // 
+            // button1
+            // 
+            button1.BackColor = SystemColors.InactiveCaption;
+            button1.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            button1.ForeColor = SystemColors.ActiveCaptionText;
+            button1.Location = new Point(2010, 159);
+            button1.Margin = new Padding(6);
+            button1.Name = "button1";
+            button1.Size = new Size(445, 87);
+            button1.TabIndex = 0;
+            button1.Text = "Lösungen vergleichen";
+            button1.UseVisualStyleBackColor = false;
+            button1.Click += bMultiLoad_Click;
+            // 
+            // dataGridView1
+            // 
+            dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridView1.Location = new Point(1995, 316);
+            dataGridView1.Name = "dataGridView1";
+            dataGridView1.RowHeadersWidth = 92;
+            dataGridView1.Size = new Size(993, 639);
+            dataGridView1.TabIndex = 8;
+            // 
+            // chart1
+            // 
+            chartArea2.Name = "ChartArea1";
+            chart1.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            chart1.Legends.Add(legend2);
+            chart1.Location = new Point(1995, 994);
+            chart1.Name = "chart1";
+            series2.ChartArea = "ChartArea1";
+            series2.Legend = "Legend1";
+            series2.Name = "Series1";
+            chart1.Series.Add(series2);
+            chart1.Size = new Size(1017, 306);
+            chart1.TabIndex = 9;
+            chart1.Text = "chart1";
+            // 
+            // textBox6
+            // 
+            textBox6.BackColor = SystemColors.ButtonFace;
+            textBox6.Location = new Point(1486, 429);
+            textBox6.Margin = new Padding(6);
+            textBox6.Name = "textBox6";
+            textBox6.Size = new Size(459, 43);
+            textBox6.TabIndex = 1;
+            // 
+            // label10
+            // 
+            label10.AutoSize = true;
+            label10.Location = new Point(1247, 435);
+            label10.Name = "label10";
+            label10.Size = new Size(68, 37);
+            label10.TabIndex = 7;
+            label10.Text = "Zeit:";
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(15F, 37F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.Window;
-            ClientSize = new Size(2020, 1337);
+            ClientSize = new Size(3231, 1337);
+            Controls.Add(chart1);
+            Controls.Add(dataGridView1);
+            Controls.Add(label10);
             Controls.Add(label8);
             Controls.Add(label7);
             Controls.Add(label6);
             Controls.Add(label5);
             Controls.Add(label4);
             Controls.Add(label3);
+            Controls.Add(textBox6);
             Controls.Add(richTextBox1);
             Controls.Add(textBox5);
             Controls.Add(pVisualization);
@@ -252,11 +321,14 @@
             Controls.Add(textBox2);
             Controls.Add(textBox1);
             Controls.Add(tbLösung);
+            Controls.Add(button1);
             Controls.Add(bOpenFile);
             Margin = new Padding(6);
             Name = "Form1";
             Text = "Visualisierung";
             Load += Form1_Load;
+            ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)chart1).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -282,5 +354,10 @@
         private TextBox textBox5;
         private Label label8;
         private Label label9;
+        private Button button1;
+        private DataGridView dataGridView1;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
+        private TextBox textBox6;
+        private Label label10;
     }
 }

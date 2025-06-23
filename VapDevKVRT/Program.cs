@@ -26,9 +26,9 @@ namespace VapDevKVRT
             // Parameter zentral definieren
             int numberOfInstances = 5;
             int numberOfVehicles = 5;
-            int numberOfCustomers = 12;
+            int numberOfCustomers = 20;
             int vehicleCapacity = 2000;
-            int instanceIndex = 0;
+            int instanceIndex = 1;
             int timeLimit = 1; 
 
             // 1) Instanz-Generator ausführen:
@@ -42,10 +42,8 @@ namespace VapDevKVRT
             // 2) Eine Instanz einlesen "{Fahrzeuge}-{Kunden}-{Index}", z.B. "CVRP-3-10-0")
             var instanceFileName = CVRPInstance.ReadFromFile($"CVRP-{numberOfVehicles}-{numberOfCustomers}-{instanceIndex}");
 
-
-
             ////// --- Nearest Neighbour lösen ---
-            
+
 
             // --- Saving Heuristic lösen ---
             ISolver savingSolver = new SavingHeuristicSolver(instanceFileName);
@@ -72,10 +70,10 @@ namespace VapDevKVRT
             Console.WriteLine("Google OR Tools:   " + googleSolution);
 
             //---Dynamic Programming lösen ---
-            ISolver dpsolver = new DPSolver(instanceFileName);
-            CVRPSolution sol = dpsolver.Solve();
-            sol.WriteToFile();
-            Console.WriteLine("Dynamic Programming:   " + sol);
+            //ISolver dpsolver = new DPSolver(instanceFileName);
+            //CVRPSolution sol = dpsolver.Solve();
+            //sol.WriteToFile();
+            //Console.WriteLine("Dynamic Programming:   " + sol);
         }
     }
 }

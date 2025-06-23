@@ -8,7 +8,7 @@ Travel costs
 3663
 
 Solution time
-0,0095133
+0,0096709
 
 ySol
 1 1 0 0 0 

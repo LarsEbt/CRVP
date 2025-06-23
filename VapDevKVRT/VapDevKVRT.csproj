@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="Google.OrTools" Version="9.14.6206" />
+    <PackageReference Include="WinForms.DataVisualization" Version="1.10.0" />
   </ItemGroup>
 
   <ItemGroup>
