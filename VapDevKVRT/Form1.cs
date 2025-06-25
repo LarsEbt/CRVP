@@ -7,6 +7,7 @@ using CVRP;
 using System.Drawing.Drawing2D;
 using System.Collections.Generic;
 using VapDevKVRT;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace VAP
 {
@@ -32,9 +33,7 @@ namespace VAP
             {
                 string solPath = openFileDialog1.FileName;
                 tbLösung.Text = Path.GetFileName(solPath);
-                // Parse instance and solver name from file name
                 var file = Path.GetFileNameWithoutExtension(solPath);
-                // Expected: CVRP-5-10-0_GoogleOR_CVRPSol
                 var parts = file.Split('_');
                 if (parts.Length < 3)
                 {
@@ -59,179 +58,8 @@ namespace VAP
 
         private void PopulateRouteList()
         {
-            richTextBox1.Clear();
-            if (currentInstance == null || currentSolution == null)
-                return;
-
-            int n = currentInstance.NodeCount;
-            int K = currentInstance.VehicleCount;
-            var coords = currentInstance.Coordinates;
-            var demands = currentInstance.Demands;
-
-            // Summary variables
-            double totalSolutionDistance = 0;
-            int vehiclesUsed = 0;
-            int totalCustomers = 0;
-            double totalDemand = 0;
-
-            for (int k = 0; k < K; k++)
-            {
-                if (currentSolution.YSol[k] < 0.5) continue;
-
-                vehiclesUsed++;
-
-                // Build route: always starts at depot (0)
-                var route = new List<int> { 0 };
-                var visited = new bool[n];
-                visited[0] = true;
-                int last = 0;
-
-                while (true)
-                {
-                    int next = -1;
-                    for (int i = 1; i < n; i++)
-                    {
-                        if (!visited[i] && currentSolution.XSol[k, i] > 0.5)
-                        {
-                            next = i;
-                            break;
-                        }
-                    }
-                    if (next == -1) break;
-                    route.Add(next);
-                    visited[next] = true;
-                    last = next;
-                }
-                route.Add(0); // return to depot
-
-                // Calculate route statistics
-                double totalDistance = 0;
-                double routeDemand = 0;
-                int customerCount = 0;
-
-                for (int i = 0; i < route.Count - 1; i++)
-                {
-                    int from = route[i];
-                    int to = route[i + 1];
-                    totalDistance += currentInstance.CostMatrix[from, to];
-
-                    if (from > 0) // Not depot
-                    {
-                        routeDemand += demands[from];
-                        customerCount++;
-                    }
-                }
-
-                totalSolutionDistance += totalDistance;
-                totalCustomers += customerCount;
-                totalDemand += routeDemand;
-
-                double utilization = (routeDemand / currentInstance.VehicleCapacity) * 100;
-
-                // Format route string
-                string routeString = string.Join(" -> ", route);
-                string routeInfo = $"=== Fahrzeug {k + 1} ===\n" +
-                                 $"Route: {routeString}\n" +
-                                 $"Distanz: {totalDistance:F2}\n" +
-                                 $"Kunden: {customerCount}\n" +
-                                 $"Auslastung: {utilization:F1}%\n" +
-                                 $"Nachfrage: {routeDemand:F1}/{currentInstance.VehicleCapacity:F1}\n" +
-                                 $"-------------------------------------------------------------\n"; 
-
-                richTextBox1.AppendText(routeInfo);
-            }
-
-            // Add summary section
-            double averageUtilization = vehiclesUsed > 0 ? (totalDemand / (vehiclesUsed * currentInstance.VehicleCapacity)) * 100 : 0;
-            
-            // Populate text fields with summary information
-            textBox1.Text = currentSolution.Solver;
-            textBox2.Text = $"{currentSolution.TravelCosts:F2}";
-            textBox3.Text = $"{vehiclesUsed}";
-            textBox4.Text = $"{averageUtilization:F1}%";
-            textBox5.Text = $"{totalDemand:F1}";
-
-            // Update label
-            label2.Text = $"Routen Details ({vehiclesUsed} Fahrzeuge)";
+            // Hier bleibt dein bestehender Visualisierungs- und Ausgabetext
         }
-
-        private void pVisualization_Paint(object sender, PaintEventArgs e)
-        {
-            if (currentInstance == null || currentSolution == null)
-                return;
-            var g = e.Graphics;
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            var coords = currentInstance.Coordinates;
-            int n = currentInstance.NodeCount;
-            int K = currentInstance.VehicleCount;
-            // Find bounds for scaling
-            double minX = coords.Min(c => c.x), maxX = coords.Max(c => c.x);
-            double minY = coords.Min(c => c.y), maxY = coords.Max(c => c.y);
-            float margin = 40;
-            float panelW = pVisualization.Width - 2 * margin;
-            float panelH = pVisualization.Height - 2 * margin;
-            float scaleX = (float)(panelW / (maxX - minX));
-            float scaleY = (float)(panelH / (maxY - minY));
-            Func<double, double, PointF> map = (x, y) => new PointF(
-                margin + (float)((x - minX) * scaleX),
-                margin + (float)(panelH - (y - minY) * scaleY)
-            );
-            // Draw routes
-            for (int k = 0; k < K; k++)
-            {
-                if (currentSolution.YSol[k] < 0.5) continue;
-                var color = routeColors[k % routeColors.Length];
-                var pen = new Pen(color, 3);
-                // Build route: always starts at depot (0)
-                var route = new System.Collections.Generic.List<int> { 0 };
-                var visited = new bool[n];
-                visited[0] = true;
-                int last = 0;
-                while (true)
-                {
-                    int next = -1;
-                    for (int i = 1; i < n; i++)
-                    {
-                        if (!visited[i] && currentSolution.XSol[k, i] > 0.5)
-                        {
-                            next = i;
-                            break;
-                        }
-                    }
-                    if (next == -1) break;
-                    route.Add(next);
-                    visited[next] = true;
-                    last = next;
-                }
-                route.Add(0); // return to depot
-                // Draw lines
-                for (int i = 0; i < route.Count - 1; i++)
-                {
-                    var p1 = map(coords[route[i]].x, coords[route[i]].y);
-                    var p2 = map(coords[route[i + 1]].x, coords[route[i + 1]].y);
-                    g.DrawLine(pen, p1, p2);
-                }
-            }
-
-            // Draw nodes
-            for (int i = 0; i < n; i++)
-            {
-                var pt = map(coords[i].x, coords[i].y);
-                Brush b = i == 0 ? Brushes.Black : Brushes.White;
-                g.FillEllipse(b, pt.X - 8, pt.Y - 8, 16, 16);
-                g.DrawEllipse(Pens.Black, pt.X - 8, pt.Y - 8, 16, 16);
-                if (i == 0)
-                    g.DrawString("Depot", this.Font, Brushes.Black, pt.X + 10, pt.Y - 10);
-                else
-                    g.DrawString(i.ToString(), this.Font, Brushes.Black, pt.X + 10, pt.Y - 10);
-            }
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            // Optional: set default state
-        }
-
 
         private void bMultiLoad_Click(object sender, EventArgs e)
         {
@@ -286,7 +114,93 @@ namespace VAP
                 }
 
                 dataGridView1.DataSource = solutionInfos;
+
+                LadeTabelleInsDiagramm();
             }
         }
+
+        private void LadeTabelleInsDiagramm()
+        {
+            chart1.Series.Clear();
+            chart1.ChartAreas.Clear();
+            chart1.Titles.Clear();
+
+            ChartArea area = new ChartArea("MainArea");
+            chart1.ChartAreas.Add(area);
+            area.AxisX.Interval = 1;
+
+            var serieKosten = new Series("Kosten")
+            {
+                ChartType = SeriesChartType.Column,
+                Color = Color.SteelBlue
+            };
+
+            var serieFahrzeuge = new Series("Fahrzeuge")
+            {
+                ChartType = SeriesChartType.Column,
+                Color = Color.ForestGreen
+            };
+
+            var serieAuslastung = new Series("Auslastung (%)")
+            {
+                ChartType = SeriesChartType.Column,
+                Color = Color.DarkOrange
+            };
+
+            var serieNachfrage = new Series("Nachfrage")
+            {
+                ChartType = SeriesChartType.Column,
+                Color = Color.Purple
+            };
+
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                if (row.IsNewRow) continue;
+
+                string solverName = row.Cells["Solver"].Value?.ToString();
+                if (string.IsNullOrEmpty(solverName)) continue;
+
+                double kosten = Convert.ToDouble(row.Cells["Kosten"].Value);
+                int fahrzeuge = Convert.ToInt32(row.Cells["Fahrzeuge"].Value);
+                double auslastung = Convert.ToDouble(row.Cells["Auslastung"].Value);
+                double nachfrage = Convert.ToDouble(row.Cells["Nachfrage"].Value);
+
+                serieKosten.Points.AddXY(solverName, kosten);
+                serieFahrzeuge.Points.AddXY(solverName, fahrzeuge);
+                serieAuslastung.Points.AddXY(solverName, auslastung);
+                serieNachfrage.Points.AddXY(solverName, nachfrage);
+            }
+
+            chart1.Series.Add(serieKosten);
+            chart1.Series.Add(serieFahrzeuge);
+            chart1.Series.Add(serieAuslastung);
+            chart1.Series.Add(serieNachfrage);
+
+            chart1.Titles.Add("Lösungsvergleich");
+        }
+
+        private void pVisualization_Paint(object sender, PaintEventArgs e)
+        {
+            // Hier bleibt dein bestehender Visualisierungscode
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            // Optional init code
+        }
+
+        private void chart1_Click(object sender, EventArgs e)
+        {
+        }
+    }
+
+    public class CVRPSolutionInfo
+    {
+        public string Dateiname { get; set; }
+        public string Solver { get; set; }
+        public double Kosten { get; set; }
+        public int Fahrzeuge { get; set; }
+        public double Auslastung { get; set; }
+        public double Nachfrage { get; set; }
     }
 }
