@@ -3,138 +3,123 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace VapDevKVRT
+namespace CVRP
 {
     public class CVRPInstance
     {
         public string Name { get; set; }
-
-        public int NumberOfVehicles { get; set; }
-
-        public int NumberOfDemandLocations { get; set; }
-
-        public double[,] DistanceMatrix { get; set; } = new double[0, 0]; // Initialize to avoid null
-
-        public double[] d { get; set; }
-
-        public (double x, double y) Warehouse { get; set; }
-
-        public List<(double x, double y)> CoordinatesCustomers { get; set; }
-
-        public CVRPInstance(string name, int numberOfVehicles, int numberOfDemandLocations, double[] d, (double x, double y) warehouse, List<(double x, double y)> coordinatesCustomers)
+        public int NodeCount { get; set; }
+        public int VehicleCount { get; set; }
+        public double VehicleCapacity { get; set; }
+        public double[] Demands { get; set; }
+        public double[,] CostMatrix { get; set; }
+        public List<(double x, double y)> Coordinates { get; set; }
+        public CVRPInstance(
+            string name,
+            int nodeCount,
+            int vehicleCount,
+            double vehicleCapacity,
+            double[] demands,
+            double[,] costMatrix,
+            List<(double x, double y)> coordinates)
         {
             Name = name;
-            NumberOfVehicles = numberOfVehicles;
-            NumberOfDemandLocations = numberOfDemandLocations;
-            this.d = d;
-            Warehouse = warehouse;
-            CoordinatesCustomers = coordinatesCustomers;
-        }
-
-        public void ComputeDistanceMatrix()
-        {
-            int totalPoints = CoordinatesCustomers.Count + 1;
-            DistanceMatrix = new double[totalPoints, totalPoints];
-
-            List<(double x, double y)> allPoints = new List<(double x, double y)> { Warehouse };
-            allPoints.AddRange(CoordinatesCustomers);
-
-            for (int i = 0; i < totalPoints; i++)
-            {
-                for (int j = 0; j < totalPoints; j++)
-                {
-                    double dx = allPoints[i].x - allPoints[j].x;
-                    double dy = allPoints[i].y - allPoints[j].y;
-                    DistanceMatrix[i, j] = Math.Sqrt(dx * dx + dy * dy);
-                }
-            }
+            NodeCount = nodeCount;
+            VehicleCount = vehicleCount;
+            VehicleCapacity = vehicleCapacity;
+            Demands = demands;
+            CostMatrix = costMatrix;
+            Coordinates = coordinates;
         }
 
         public void WriteToFile()
         {
-            string relativePath = @"..\..\..\instances\";
-            Directory.CreateDirectory(relativePath);
-            string filePath = Path.Combine(relativePath, $"{Name}.txt");
-
-            using (StreamWriter writer = new StreamWriter(filePath))
+            var path = @$"..\..\..\Instances\{Name}.txt";
+            
+            using (var writer = new StreamWriter(path))
             {
-                writer.WriteLine($"Name:\n{Name}");
-                writer.WriteLine($"Number of Vehicles:\n{NumberOfVehicles}");
-                writer.WriteLine($"Number of Demand Locations:\n{NumberOfDemandLocations}");
-                writer.WriteLine("Demands:\n" + string.Join(", ", d));
+                // Schreibe Metadaten der Instanz
+                writer.WriteLine($"Name\n{Name}\n");
+                writer.WriteLine($"nodeCount\n{NodeCount}\n");
+                writer.WriteLine($"vehicleCount\n{VehicleCount}\n");
+                writer.WriteLine($"vehicleCapacity\n{VehicleCapacity}\n");
 
-                writer.WriteLine("Warehouse Coordinates:");
-                writer.WriteLine($"{Warehouse.x}, {Warehouse.y}");
-                writer.WriteLine();
+                // Schreibe Nachfrage-Array (alle Nachfragen in einer Zeile)
+                writer.WriteLine("demands");
+                for (int i = 0; i < NodeCount; i++)
+                    writer.Write($"{Demands[i]} ");
 
-                writer.WriteLine("Customer Coordinates:");
-                foreach (var coord in CoordinatesCustomers)
+                // Schreibe Kostenmatrix (jede Zeile entspricht einer Zeile der Matrix)
+                writer.WriteLine("\n\nc");
+                for (int i = 0; i < NodeCount; i++)
                 {
-                    writer.WriteLine($"{coord.x}, {coord.y}");
+                    for (int j = 0; j < NodeCount; j++)
+                        writer.Write($"{CostMatrix[i, j]} ");
+                    writer.WriteLine();
                 }
 
-                writer.WriteLine();
-                writer.WriteLine("Distance Matrix:");
-                for (int i = 0; i < DistanceMatrix.GetLength(0); i++)
-                {
-                    string line = "";
-                    for (int j = 0; j < DistanceMatrix.GetLength(1); j++)
-                    {
-                        line += DistanceMatrix[i, j].ToString("F2") + (j < DistanceMatrix.GetLength(1) - 1 ? ", " : "");
-                    }
-                    writer.WriteLine(line);
-                }
+                // Schreibe Koordinaten (jede Zeile enthält x- und y-Koordinate eines Knotens)
+                writer.WriteLine("\nCoordinates");
+                writer.WriteLine("x y");
+                for (int i = 0; i < NodeCount; i++)
+                    writer.WriteLine($"{Coordinates[i].x} {Coordinates[i].y}");
             }
         }
 
-        public static CVRPInstance ReadFromFile(string fileName)
+        public static CVRPInstance ReadFromFile(string instanceName)
         {
-            string filePath = Path.Combine(@"..\..\..\instances\", $"{fileName}.txt");
-            if (!File.Exists(filePath))
+            // Lese alle Zeilen der Instanz-Datei
+            var lines = File.ReadAllLines(@$"..\..\..\Instances\{instanceName}.txt").ToList();
+
+            // Parse Metadaten
+            string name = lines[1];
+            int nodeCount = int.Parse(lines[lines.IndexOf("nodeCount") + 1]);
+            int vehicleCount = int.Parse(lines[lines.IndexOf("vehicleCount") + 1]);
+            double vehicleCapacity = double.Parse(lines[lines.IndexOf("vehicleCapacity") + 1]);
+
+            // Parse Nachfrage-Array: Teile die Zeile in einzelne Zahlen auf
+            double[] demands = lines[lines.IndexOf("demands") + 1]
+                .Trim()
+                .Split(' ')
+                .Where(s => !string.IsNullOrWhiteSpace(s))  // Ignoriert leere Strings
+                .Select(double.Parse)
+                .ToArray();
+
+            // Parse Kostenmatrix: Jede Zeile nach "c" entspricht einer Zeile der Matrix
+            var costMatrix = new double[nodeCount, nodeCount];
+            int cStart = lines.IndexOf("c") + 1;
+            for (int i = 0; i < nodeCount; i++)
             {
-                throw new FileNotFoundException($"Instance file '{filePath}' not found.");
+                var parts = lines[cStart + i]
+                    .Trim()
+                    .Split(' ')
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .ToArray();
+                for (int j = 0; j < nodeCount; j++)
+                    costMatrix[i, j] = double.Parse(parts[j]);
             }
 
-            var lines = File.ReadAllLines(filePath).ToList();
-
-            string name = lines[1].Trim();
-            int numberOfVehicles = int.Parse(lines[3].Trim());
-            int numberOfDemandLocations = int.Parse(lines[5].Trim());
-            double[] d = lines[7].Split(',').Select(double.Parse).ToArray();
-
-            var warehouseCoords = lines[9].Split(',').Select(double.Parse).ToArray();
-            (double x, double y) warehouse = (warehouseCoords[0], warehouseCoords[1]);
-
-            List<(double x, double y)> coordinatesCustomers = new List<(double x, double y)>();
-            int customerStartLine = 12;
-            for (int i = 0; i < numberOfDemandLocations; i++)
+            // Parse Koordinaten: Jede Zeile nach "Coordinates" enthält x- und y-Koordinate
+            var coordinates = new List<(double x, double y)>();
+            int coordStart = lines.IndexOf("Coordinates") + 2;  // "Coordinates" und "x y" Zeile
+            for (int i = 0; i < nodeCount; i++)
             {
-                var coords = lines[customerStartLine + i].Split(',').Select(double.Parse).ToArray();
-                coordinatesCustomers.Add((coords[0], coords[1]));
+                var parts = lines[coordStart + i]
+                    .Trim()
+                    .Split(' ')
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .ToArray();
+                coordinates.Add((double.Parse(parts[0]), double.Parse(parts[1])));
             }
-
-
-            int matrixStart = lines.FindIndex(l => l.StartsWith("Distance Matrix:")) + 1;
-            int matrixSize = numberOfDemandLocations + 1;
-
-            double[,] distanceMatrix = new double[matrixSize, matrixSize];
-            for (int i = 0; i < matrixSize; i++)
-            {
-                var rowValues = lines[matrixStart + i].Split(',').Select(s => double.Parse(s)).ToArray();
-                for (int j = 0; j < matrixSize; j++)
-                {
-                    distanceMatrix[i, j] = rowValues[j];
-                }
-            }
-
-            CVRPInstance instance = new CVRPInstance(name, numberOfVehicles, numberOfDemandLocations, d, warehouse, coordinatesCustomers);
-            instance.DistanceMatrix = distanceMatrix;
-            return instance;
+            return new CVRPInstance(
+                name,
+                nodeCount,
+                vehicleCount,
+                vehicleCapacity,
+                demands,
+                costMatrix,
+                coordinates
+            );
         }
     }
 }
-
-
-
-
-

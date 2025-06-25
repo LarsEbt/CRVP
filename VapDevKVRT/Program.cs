@@ -1,50 +1,92 @@
+using CVRP;
+using Google.OrTools.ConstraintSolver;
+using VAP;
+
 namespace VapDevKVRT
 {
+
     internal static class Program
     {
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
         [STAThread]
         static void Main()
         {
             RunBeforeGUI();
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
             Application.Run(new Form1());
         }
 
-
         public static void RunBeforeGUI()
         {
-            //1. Instanz generieren
-            Console.WriteLine("Running pre-GUI setup...");
-            InstanceGenerator generator = new InstanceGenerator();
-            generator.GenerateInstances(10, 5, 20); // Example parameters: 10 instances, 5 vehicles, 20 demand locations
+            // Parameter zentral definieren
+            int numberOfInstances = 1;
+            int numberOfVehicles = 5;
+            int numberOfCustomers = 10;
+            int vehicleCapacity = 1000;
+            int instanceIndex = 0;
+            int timeLimit = 10; 
 
-            //2. Instanzname definieren
-            string instanceName = "7-5-20"; // Example instance name
+            // 1) Instanz-Generator ausfÃ¼hren:
+            var generator = new CVRPInstanceGenerator();
+            generator.GenerateInstances(numberOfInstances,
+                                        numberOfVehicles,
+                                        numberOfCustomers,
+                                        vehicleCapacity);
 
-            //3. Instancz laden
-            CVRPInstance instance = CVRPInstance.ReadFromFile(instanceName);
+            // 2) Eine Instanz einlesen
+            var instanceFileName = CVRPInstance.ReadFromFile($"CVRP-{numberOfVehicles}-{numberOfCustomers}-{instanceIndex}");
 
-            //4. Sovler wählen
-            ISolver sovler = new GurobiSolver(instance, 60);
 
-            //5. Instanz lösen
-            CVRPSolution solution = sovler.Solve();
+            // --- Nearest Neighbour lÃ¶sen ---
+            ISolver nnSolver = new NearestNeighbourSolver(instanceFileName);
+            var nnSolution = nnSolver.Solve();
+            nnSolution.WriteToFile();
+            Console.WriteLine("NearestNeighbour:   " + nnSolution);
+            Console.WriteLine("----------------------------------");
 
-            // 6. Lösung speichern
-            solution.WriteToFile();
+            // --- Improved Nearest Neighbour Heuristic lÃ¶sen ---
+            ISolver innSolver = new ImprovedNearestNeighbourSolver(instanceFileName);
+            var innSolution = innSolver.Solve();
+            innSolution.WriteToFile();
+            Console.WriteLine("Improved NearestNeighbour:   " + innSolution);
+            Console.WriteLine("----------------------------------");
 
-            // 7. Ausgabe in Konsole
-            Console.WriteLine("----- Lösung abgeschlossen -----");
-            Console.WriteLine($"Solver: {solution.Solver}");
-            Console.WriteLine($"Kosten: {solution.DeliveryCosts:F2}");
-            Console.WriteLine($"Fahrzeuge: {solution.NumberOfVehicles}");
-            Console.WriteLine($"Lösungszeit: {solution.Solutiontime:F3} Sekunden");
-            Console.WriteLine("--------------------------------");
+            // --- Saving Heuristic lÃ¶sen ---
+            ISolver savingSolver = new SavingHeuristicSolver(instanceFileName);
+            var savingSolution = savingSolver.Solve();
+            savingSolution.WriteToFile();
+            Console.WriteLine("SavingHeuristic:   " + savingSolution);
+            Console.WriteLine("----------------------------------");
+
+            //--- Random Next lÃ¶sen ---
+            ISolver randomNextSolver = new RandomNextSolver(instanceFileName);
+            var randomNextSolution = randomNextSolver.Solve();
+            randomNextSolution.WriteToFile();
+            Console.WriteLine("RandomNext:   " + randomNextSolution);
+            Console.WriteLine("----------------------------------");
+
+            // --- Gurobi lÃ¶sen 
+            ISolver gurobiSolver = new GurobiSolver(instanceFileName, timeLimit);
+            var gurobiSolution = gurobiSolver.Solve();
+            gurobiSolution.WriteToFile();
+            Console.WriteLine("Gurobi:   " + gurobiSolution);
+            Console.WriteLine("----------------------------------");
+
+            //--- Google OR Tools lÃ¶sen ---
+            ISolver googleSolver = new GoogleORSolver(instanceFileName, timeLimit, 1000);
+            var googleSolution = googleSolver.Solve();
+            googleSolution.WriteToFile();
+            Console.WriteLine("Google OR Tools:   " + googleSolution);
+            Console.WriteLine("----------------------------------");
+
+            //---Dynamic Programming lÃ¶sen ---
+            if (numberOfCustomers < 15)
+            {
+                ISolver dpsolver = new DPSolver(instanceFileName);
+                CVRPSolution sol = dpsolver.Solve();
+                sol.WriteToFile();
+                Console.WriteLine("Dynamic Programming:   " + sol);
+                Console.WriteLine("----------------------------------");
+            }
         }
     }
 }

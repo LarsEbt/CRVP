@@ -1,57 +1,84 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using VapDevKVRT;
 
-namespace VapDevKVRT
+namespace CVRP
 {
-    public class InstanceGenerator
+    public class CVRPInstanceGenerator
     {
-        public InstanceGenerator()
+        public void GenerateInstances(int numberOfInstances, int numberOfVehicles, int numberOfCustomers, double vehicleCapacity)
         {
-            // Constructor logic can be added here if needed
-        }
-
-        public void GenerateInstances(int numberOfInstances, int numberOfVehicles, int numberOfDemandLocations)
-        {
-            Random random = new Random(69);
+            var rand = new Random(69);
+            double capacityBuffer = 0.10; // 10% Puffer auf die benötigte Kapazität
 
             for (int k = 0; k < numberOfInstances; k++)
             {
-                int a = numberOfVehicles;
-                int n = numberOfDemandLocations;
+                int A = numberOfVehicles;
+                int n = numberOfCustomers;
+                double Q = vehicleCapacity;
 
-                string name = $"{k}-{a}-{n}";
-                int q = 200; // maximum capacity of each vehicle
-                double[] d = new double[n]; // demand at each location
-                List<(double x, double y)> coordinatesCustomers = new List<(double x, double y)>(); // coordinates of customers
+                // Name: z.B. "CVRP-A-n-k"
+                string name = $"CVRP-{A}-{n}-{k}";
 
-                var warehouse = (
-                   x: random.NextDouble() * 1000,
-                   y: random.NextDouble() * 1000
-               );
+                // Koordinaten: Index 0 = Depot, 1..n = Kunden
+                var coords = new List<(double x, double y)>();
+                // Bedarfe (d): d[0]=0 fürs Depot
+                double[] d = new double[n + 1];
+                // Distanzmatrix (n+1)×(n+1)
+                double[,] c = new double[n + 1, n + 1];
 
-                for (int i = 0; i < n; i++)
+                // Depot zufällig im Quadrat [0,800]×[0,800]
+                coords.Add((rand.Next(0, 1001), rand.Next(0, 1001)));
+
+                // Generiere Kundennachfrage und Kundenkoordinaten
+                for (int i = 1; i <= n; i++)
                 {
-                    d[i] = random.Next(10, 30); // Random demand between 10 and 30
-                    coordinatesCustomers.Add((random.Next(0, 1001), random.Next(0, 1001))); // Random coordinates between 0 and 10000
+                    d[i] = rand.Next(1, 11) * 50;                       // Nachfrage in {50,100,…,500}
+                    coords.Add((rand.Next(0, 1001), rand.Next(0, 1001)));
                 }
 
-                double totalCapacity = n * q; // total capacity of all vehicles
-                double totalDemand = d.Sum(); // total demand of all locations
-
-                if (totalDemand > totalCapacity)
+                // Fülle Distanzmatrix mit euklidischen Distanzen
+                for (int i = 0; i <= n; i++)
                 {
-                    Console.WriteLine($"Instance {name} has total demand {totalDemand} which exceeds the total capacity {totalCapacity}. Skipping instance generation.");
-                    double increment = Math.Ceiling(totalDemand - totalCapacity) / q; // Calculate increment to adjust demand
-                    a += (int)increment;
+                    for (int j = 0; j <= n; j++)
+                    {
+                        c[i, j] = CalculateDistance(coords[i], coords[j]);
+                    }
                 }
 
-                CVRPInstance instance = new CVRPInstance(name, a, n, d, warehouse, coordinatesCustomers);
-                instance.ComputeDistanceMatrix(); // Compute the distance matrix for the instance
+                // Prüfe, ob Gesamtbedarf in A Fahrzeuge mit Kapazität Q passt
+                double totalDemand = d.Sum();
+                if (totalDemand > A * Q * (1 + capacityBuffer))
+                {
+                    double newQ = Math.Ceiling(totalDemand / (A * (1 - capacityBuffer)));
+                    Console.WriteLine($"Instance {name}: Gesamtbedarf {totalDemand} > A·Q·(1+{capacityBuffer}) → erhöhe Q auf {newQ}");
+                    Q = newQ;
+                }
+                else
+                {
+                    Console.WriteLine($"Instance {name}: Gesamtbedarf {totalDemand} ≤ A·Q·(1+{capacityBuffer}) → Q bleibt bei {Q}");
+                }
+
+                // Instance erstellen und in Datei schreiben
+                var instance = new CVRPInstance(
+                    name: name,
+                    nodeCount: n + 1,
+                    vehicleCount: A,
+                    vehicleCapacity: Q,
+                    demands: d,
+                    costMatrix: c,
+                    coordinates: coords
+                );
                 instance.WriteToFile();
             }
+        }
+
+        private static double CalculateDistance((double x, double y) p1, (double x, double y) p2)
+        {
+            double dx = p1.x - p2.x;
+            double dy = p1.y - p2.y;
+            return Math.Sqrt(dx * dx + dy * dy);
         }
     }
 }

@@ -1,0 +1,21 @@
+Name
+CVRP-5-10-0
+
+Solver
+SavingHeuristic
+
+Travel costs
+5396
+
+Solution time
+0,0065328
+
+ySol
+1 1 1 1 0 
+
+xSol
+0 1 0 1 1 0 0 0 0 0 0 
+0 0 1 0 0 0 0 0 0 0 0 
+0 0 0 0 0 1 1 0 1 1 0 
+0 0 0 0 0 0 0 1 0 0 1 
+0 0 0 0 0 0 0 0 0 0 0 

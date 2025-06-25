@@ -1,0 +1,19 @@
+Name
+CVRP-3-10-0
+
+Solver
+ImprovedNearestNeighbour
+
+Travel costs
+5225
+
+Solution time
+0,0058329
+
+ySol
+1 1 1 
+
+xSol
+0 0 1 1 0 0 0 0 0 0 1 
+0 1 0 0 1 0 1 0 0 0 0 
+0 0 0 0 0 1 0 1 1 1 0 

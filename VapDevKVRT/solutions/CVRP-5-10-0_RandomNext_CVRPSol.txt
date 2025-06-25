@@ -1,0 +1,21 @@
+Name
+CVRP-5-10-0
+
+Solver
+RandomNext
+
+Travel costs
+6730
+
+Solution time
+2,79E-05
+
+ySol
+1 1 1 1 0 
+
+xSol
+0 1 0 0 0 0 0 1 0 0 0 
+0 0 0 1 0 1 1 0 1 0 0 
+0 0 0 0 1 0 0 0 0 1 1 
+0 0 1 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 0 0 
